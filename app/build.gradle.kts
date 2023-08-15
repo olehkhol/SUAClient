@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.material3)
 
     implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
     kapt(libs.hilt.android.compiler)
     implementation(libs.play.services.auth)
 
