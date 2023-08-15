@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import sky.tavrov.suaclient.domain.repository.DataStoreOperations
-import sky.tavrov.suaclient.util.Constants
+import sky.tavrov.suaclient.util.Constants.PREFERENCES_SIGNED_IN_KEY
 import java.io.IOException
 import javax.inject.Inject
 
@@ -18,7 +18,7 @@ class DataStoreOperationsImpl @Inject constructor(
 ) : DataStoreOperations {
 
     private object PreferencesKey {
-        val signedInKey = booleanPreferencesKey(name = Constants.PREFERENCES_SIGNED_IN_KEY)
+        val signedInKey = booleanPreferencesKey(name = PREFERENCES_SIGNED_IN_KEY)
     }
 
     override suspend fun saveSignedInState(signedIn: Boolean) {

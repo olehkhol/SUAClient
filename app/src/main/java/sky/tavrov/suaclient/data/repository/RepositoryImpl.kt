@@ -6,12 +6,12 @@ import sky.tavrov.suaclient.domain.repository.Repository
 import javax.inject.Inject
 
 class RepositoryImpl @Inject constructor(
-    private val dataStore: DataStoreOperations
+    private val dataStoreOperations: DataStoreOperations
 ) : Repository {
 
     override suspend fun saveSignedInState(signedIn: Boolean) {
-        dataStore.saveSignedInState(signedIn)
+        dataStoreOperations.saveSignedInState(signedIn)
     }
 
-    override fun readSignedInState(): Flow<Boolean> = dataStore.readSignedInState()
+    override fun readSignedInState(): Flow<Boolean> = dataStoreOperations.readSignedInState()
 }
