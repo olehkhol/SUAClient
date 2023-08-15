@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.com.android.application)
     alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.com.google.dagger.hilt.android)
-    alias(libs.plugins.com.google.devtools.ksp)
+    alias(libs.plugins.org.jetbrains.kotlin.kapt)
 }
 
 android {
@@ -50,6 +50,9 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    kapt {
+        useBuildCache = false
+    }
 }
 
 dependencies {
@@ -66,12 +69,12 @@ dependencies {
     implementation(libs.material3)
 
     implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
+    kapt(libs.hilt.android.compiler)
     implementation(libs.play.services.auth)
 
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
-    ksp(libs.kotlinx.metadata.jvm)
+    kapt(libs.kotlinx.metadata.jvm)
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
