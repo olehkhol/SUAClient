@@ -139,8 +139,6 @@ fun signUp(
             }
         }
         .addOnFailureListener {
-            logDebug("SignIn", "Signing Up...")
-
-            accountNotFound()
+            logDebug("SignIn", "Signing Up...", accountNotFound)
         }
 }

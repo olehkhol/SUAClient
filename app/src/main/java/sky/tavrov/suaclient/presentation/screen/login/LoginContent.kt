@@ -43,7 +43,10 @@ fun LoginContent(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CentralContent(signedInState = signedInState, onButtonClicked = onButtonClicked)
+            CentralContent(
+                signedInState = signedInState,
+                onButtonClicked = onButtonClicked
+            )
         }
     }
 }

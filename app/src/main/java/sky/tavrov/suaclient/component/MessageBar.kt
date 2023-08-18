@@ -6,6 +6,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -65,7 +65,8 @@ fun MessageBar(state: MessageBarState) {
     }
 
     AnimatedVisibility(
-        visible = startAnimation && (state.error != null || state.message != null),
+        visible = state.error != null && startAnimation
+                || state.message != null && startAnimation,
         enter = expandVertically(
             animationSpec = tween(300),
             expandFrom = Alignment.Top
@@ -94,13 +95,21 @@ fun Message(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = if (state.error != null) Icons.Default.Warning else Icons.Default.Check,
-            contentDescription = "Message Bar Icon"
+            imageVector = if (state.error != null) {
+                Icons.Default.Warning
+            } else {
+                Icons.Default.Check
+            },
+            contentDescription = "Message Bar Icon",
+            tint = Color.White
         )
-        Divider(modifier = Modifier.width(12.dp), color = Color.Transparent)
+        Spacer(modifier = Modifier.width(12.dp))
         Text(
-            text = if (state.error != null) errorMessage else state.message.toString(),
-
+            text = if (state.error != null) {
+                errorMessage
+            } else {
+                state.message.toString()
+            },
             color = Color.White,
             fontWeight = FontWeight.Bold,
             fontSize = MaterialTheme.typography.labelLarge.fontSize,
