@@ -10,6 +10,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import sky.tavrov.suaclient.data.remote.KtorApi
 import sky.tavrov.suaclient.data.repository.DataStoreOperationsImpl
 import sky.tavrov.suaclient.data.repository.RepositoryImpl
 import sky.tavrov.suaclient.domain.repository.DataStoreOperations
@@ -23,20 +24,16 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideDataStorePreferences(
-        @ApplicationContext context: Context
-    ): DataStore<Preferences> =
+    fun provideDataStorePreferences(@ApplicationContext context: Context): DataStore<Preferences> =
         PreferenceDataStoreFactory.create { context.preferencesDataStoreFile(PREFERENCES_NAME) }
 
     @Provides
     @Singleton
-    fun provideDataStoreOperations(
-        dataStore: DataStore<Preferences>
-    ): DataStoreOperations = DataStoreOperationsImpl(dataStore)
+    fun provideDataStoreOperations(dataStore: DataStore<Preferences>): DataStoreOperations =
+        DataStoreOperationsImpl(dataStore)
 
     @Provides
     @Singleton
-    fun provideRepository(
-        dataStoreOperations: DataStoreOperations
-    ): Repository = RepositoryImpl(dataStoreOperations)
+    fun provideRepository(dataStoreOperations: DataStoreOperations, ktorApi: KtorApi): Repository =
+        RepositoryImpl(dataStoreOperations, ktorApi)
 }
