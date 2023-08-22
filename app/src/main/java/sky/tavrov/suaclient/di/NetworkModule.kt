@@ -11,6 +11,7 @@ import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import sky.tavrov.suaclient.data.remote.KtorApi
 import sky.tavrov.suaclient.util.Constants.BASE_URL
 import java.net.CookieManager
 import java.util.concurrent.TimeUnit
@@ -42,4 +43,8 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
             .build()
+
+    @Provides
+    @Singleton
+    fun provideKtorApi(retrofit: Retrofit) = retrofit.create(KtorApi::class.java)
 }
