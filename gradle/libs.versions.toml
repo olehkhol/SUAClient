@@ -1,5 +1,5 @@
 [versions]
-agp = "8.1.0"
+agp = "8.1.1"
 coil-compose = "2.3.0"
 datastore-preferences = "1.0.0"
 kotlinx-serialization-json = "1.5.1"
