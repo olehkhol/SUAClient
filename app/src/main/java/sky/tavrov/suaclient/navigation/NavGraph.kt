@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import sky.tavrov.suaclient.presentation.screen.login.LoginScreen
+import sky.tavrov.suaclient.presentation.screen.profile.ProfileScreen
 
 @Composable
 fun SetupNavController(navController: NavHostController) {
@@ -16,7 +17,7 @@ fun SetupNavController(navController: NavHostController) {
             LoginScreen(navController = navController)
         }
         composable(route = Screen.Profile.route) {
-
+            ProfileScreen(navController = navController)
         }
     }
 }
