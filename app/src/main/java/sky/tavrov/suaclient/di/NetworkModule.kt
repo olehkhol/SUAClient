@@ -10,6 +10,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import sky.tavrov.suaclient.data.remote.KtorApi
 import sky.tavrov.suaclient.util.Constants.BASE_URL
@@ -33,6 +34,7 @@ object NetworkModule {
             .readTimeout(15, TimeUnit.SECONDS)
             .connectTimeout(15, TimeUnit.SECONDS)
             .cookieJar(JavaNetCookieJar(cookieManager))
+            .addInterceptor(HttpLoggingInterceptor())
             .build()
 
     @Provides

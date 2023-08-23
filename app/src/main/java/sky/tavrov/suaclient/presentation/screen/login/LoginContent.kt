@@ -3,6 +3,7 @@ package sky.tavrov.suaclient.presentation.screen.login
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,14 +28,23 @@ import sky.tavrov.suaclient.domain.model.MessageBarState
 fun LoginContent(
     signedInState: Boolean,
     messageBarState: MessageBarState,
-    onButtonClicked: () -> Unit
+    modifier: Modifier = Modifier,
+    onButtonClicked: () -> Unit = {}
 ) {
     Column(
+        modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            MessageBar(state = messageBarState)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            MessageBar(
+                state = messageBarState,
+                modifier = Modifier.fillMaxSize()
+            )
         }
         Column(
             modifier = Modifier
@@ -85,5 +95,12 @@ fun CentralContent(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LoginContentPreview() {
-    LoginContent(signedInState = false, messageBarState = MessageBarState(), onButtonClicked = {})
+    LoginContent(
+        signedInState = true,
+        messageBarState = MessageBarState(
+            message = "bar_state_message",
+            error = Exception("bar_state_error_message")
+        ),
+        onButtonClicked = {}
+    )
 }

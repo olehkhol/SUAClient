@@ -38,8 +38,7 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 
 @Composable
-fun MessageBar(state: MessageBarState) {
-
+fun MessageBar(state: MessageBarState, modifier: Modifier = Modifier) {
     var startAnimation by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -65,8 +64,7 @@ fun MessageBar(state: MessageBarState) {
     }
 
     AnimatedVisibility(
-        visible = state.error != null && startAnimation
-                || state.message != null && startAnimation,
+        visible = state.error != null && startAnimation || state.message != null && startAnimation,
         enter = expandVertically(
             animationSpec = tween(300),
             expandFrom = Alignment.Top
@@ -76,7 +74,7 @@ fun MessageBar(state: MessageBarState) {
             shrinkTowards = Alignment.Top
         )
     ) {
-        Message(state = state, errorMessage = errorMessage)
+        Message(state = state, modifier = modifier, errorMessage = errorMessage)
     }
 }
 
