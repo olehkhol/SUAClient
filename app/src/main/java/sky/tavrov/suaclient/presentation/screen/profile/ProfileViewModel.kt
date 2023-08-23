@@ -1,6 +1,5 @@
 package sky.tavrov.suaclient.presentation.screen.profile
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +12,7 @@ import kotlinx.coroutines.withContext
 import sky.tavrov.suaclient.domain.model.ApiResponse
 import sky.tavrov.suaclient.domain.model.MessageBarState
 import sky.tavrov.suaclient.domain.model.User
+import sky.tavrov.suaclient.domain.model.UserUpdate
 import sky.tavrov.suaclient.domain.repository.Repository
 import sky.tavrov.suaclient.util.Constants.MAX_LENGTH
 import sky.tavrov.suaclient.util.RequestState
@@ -38,37 +38,13 @@ class ProfileViewModel @Inject constructor(
         getUserInfo()
     }
 
-    private fun getUserInfo() {
+    fun updateUserInfo() {
+        if (_user.value == null) return
+
         _apiResponse.value = RequestState.Loading
 
         viewModelScope.launch(Dispatchers.IO) {
-            val response = repository.getUserInfo()
-
-            withContext(Dispatchers.Main) {
-                when {
-                    response.error != null -> {
-                        _apiResponse.value = RequestState.Error(response.error)
-                        _messageBarState.value = MessageBarState(error = response.error)
-
-                        Log.d("ProfileViewModel", response.error.message.toString())
-                    }
-                    response.user != null -> {
-                        val (first, last) = response.user.name.split(" ", limit = 2)
-                        _apiResponse.value = RequestState.Success(response)
-                        _messageBarState.value = MessageBarState(message = response.message)
-                        _user.value = response.user
-                        _firstName.value = first
-                        _lastName.value = last
-
-                        Log.d("ProfileViewModel", response.message.toString())
-                    }
-                    else -> {
-                        _apiResponse.value = RequestState.Idle
-
-                        Log.d("ProfileViewModel", "Undefined state")
-                    }
-                }
-            }
+            verifyAndUpdate(repository.getUserInfo())
         }
     }
 
@@ -84,5 +60,73 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    private fun getUserInfo() {
+        _apiResponse.value = RequestState.Loading
 
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = repository.getUserInfo()
+
+            updateUIState(response)
+        }
+    }
+
+    private fun verifyAndUpdate(currentUser: ApiResponse) {
+        val (verified, exception) = if (_firstName.value.isEmpty() || _lastName.value.isEmpty()) {
+            false to EmptyFieldException()
+        } else {
+            val first = currentUser.user?.name?.split(" ")?.first()
+            val last = currentUser.user?.name?.split(" ")?.last()
+
+            if (first == _firstName.value && last == _lastName.value) {
+                false to NothingToUpdateException()
+            } else {
+                true to null
+            }
+        }
+
+        if (verified) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val response = repository.updateUser(UserUpdate(_firstName.value, _lastName.value))
+
+                updateUIState(response)
+            }
+        } else {
+            _apiResponse.value = RequestState.Success(ApiResponse(error = exception))
+            _messageBarState.value = MessageBarState(error = exception)
+        }
+    }
+
+    private suspend fun updateUIState(response: ApiResponse) {
+        val (success, user, message, error) = response
+
+        withContext(Dispatchers.Main) {
+            when {
+                !success && error != null -> {
+                    _apiResponse.value = RequestState.Error(error)
+                    _messageBarState.value = MessageBarState(error = error)
+                }
+
+                success && user != null -> {
+                    val (first, last) = user.name.split(" ", limit = 2)
+                    _apiResponse.value = RequestState.Success(response)
+                    _messageBarState.value = MessageBarState(message = message)
+                    _user.value = user
+                    _firstName.value = first
+                    _lastName.value = last
+                }
+
+                else -> {
+                    _apiResponse.value = RequestState.Idle
+                }
+            }
+        }
+    }
 }
+
+class EmptyFieldException(
+    override val message: String = "Empty Input Field."
+) : Exception()
+
+class NothingToUpdateException(
+    override val message: String = "Nothing to Update."
+) : Exception()
