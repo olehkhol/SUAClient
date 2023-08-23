@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import sky.tavrov.suaclient.R
+import sky.tavrov.suaclient.component.DisplayAlertDialog
 import sky.tavrov.suaclient.ui.theme.topAppBarBackgroundColor
 import sky.tavrov.suaclient.ui.theme.topAppBarContentColor
 
@@ -51,8 +52,16 @@ fun ProfileTopBarActions(
     onSave: () -> Unit,
     onDeleteAllConfirmed: () -> Unit
 ) {
+    var openDialog by remember { mutableStateOf(false) }
+
     SaveActions(onSave = onSave)
-    DeleteAllAction(onDeleteAllConfirmed = onDeleteAllConfirmed)
+    DeleteAllAction(onDeleteAllConfirmed = { openDialog = true })
+
+    DisplayAlertDialog(
+        openDialog = openDialog,
+        onYesClicked = { onDeleteAllConfirmed() },
+        onDialogClosed = { openDialog = false }
+    )
 }
 
 @Composable

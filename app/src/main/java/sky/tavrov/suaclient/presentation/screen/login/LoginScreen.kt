@@ -1,6 +1,5 @@
 package sky.tavrov.suaclient.presentation.screen.login
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -18,7 +17,6 @@ import sky.tavrov.suaclient.presentation.screen.common.StartActivityForResult
 import sky.tavrov.suaclient.presentation.screen.common.signIn
 import sky.tavrov.suaclient.util.RequestState
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreen(
     navController: NavController,
