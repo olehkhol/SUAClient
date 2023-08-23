@@ -35,8 +35,8 @@ fun ProfileContent(
     onFirstNameChanged: (String) -> Unit,
     lastName: String,
     onLastNameChanged: (String) -> Unit,
-    email: String,
-    picture: String,
+    email: String?,
+    picture: String?,
     onSignOutClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -62,7 +62,7 @@ fun ProfileContent(
         Column(
             modifier = Modifier
                 .weight(9f)
-                .fillMaxWidth(),
+                .fillMaxWidth(0.7f),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

@@ -52,7 +52,7 @@ class LoginViewModel @Inject constructor(
         _apiResponse.value = RequestState.Loading
 
         viewModelScope.launch(Dispatchers.IO) {
-            val response = repository.verifyTokenOnBackend(request)
+            val response: ApiResponse = repository.verifyTokenOnBackend(request)
 
             withContext(Dispatchers.Main) {
                 if (response.error != null) {

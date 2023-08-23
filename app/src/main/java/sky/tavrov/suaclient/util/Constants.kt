@@ -9,4 +9,6 @@ object Constants {
     const val PREFERENCES_SIGNED_IN_KEY = "signed_in_key"
 
     const val CLIENT_ID = "34441347106-4312o532t6ub84tiajfqfvtiu639sm7l.apps.googleusercontent.com"
+
+    const val MAX_LENGTH = 20
 }
