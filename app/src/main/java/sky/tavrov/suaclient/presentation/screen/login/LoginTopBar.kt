@@ -15,9 +15,14 @@ import sky.tavrov.suaclient.ui.theme.topAppBarContentColor
 fun LoginTopBar() {
     TopAppBar(
         title = {
-            Text(text = "Sign in", color = MaterialTheme.colorScheme.topAppBarContentColor)
+            Text(
+                text = "Sign in",
+                color = MaterialTheme.colorScheme.topAppBarContentColor
+            )
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.topAppBarBackgroundColor)
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.topAppBarBackgroundColor
+        )
     )
 }
 
