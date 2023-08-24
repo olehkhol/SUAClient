@@ -74,10 +74,10 @@ class ProfileViewModel @Inject constructor(
         val (verified, exception) = if (_firstName.value.isEmpty() || _lastName.value.isEmpty()) {
             false to EmptyFieldException()
         } else {
-            val first = currentUser.user?.name?.split(" ")?.first()
-            val last = currentUser.user?.name?.split(" ")?.last()
+            val firstName = currentUser.user?.firstName
+            val lastName = currentUser.user?.lastName
 
-            if (first == _firstName.value && last == _lastName.value) {
+            if (firstName == _firstName.value && lastName == _lastName.value) {
                 false to NothingToUpdateException()
             } else {
                 true to null
@@ -107,12 +107,13 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 success && user != null -> {
-                    val (first, last) = user.name.split(" ", limit = 2)
+                    val firstName = user.firstName
+                    val lastName = user.lastName
                     _apiResponse.value = RequestState.Success(response)
                     _messageBarState.value = MessageBarState(message = message)
                     _user.value = user
-                    _firstName.value = first
-                    _lastName.value = last
+                    _firstName.value = firstName
+                    _lastName.value = lastName
                 }
 
                 else -> {
