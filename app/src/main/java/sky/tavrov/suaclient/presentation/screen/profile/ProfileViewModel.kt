@@ -24,15 +24,11 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _user: MutableState<User?> = mutableStateOf(null)
-    val user: State<User?> get() = _user
-    private val _firstName: MutableState<String> = mutableStateOf("")
-    val firstName: State<String> get() = _firstName
-    private val _lastName: MutableState<String> = mutableStateOf("")
-    val lastName: State<String> get() = _lastName
+    val user: State<User?> = _user
     private val _apiResponse = mutableStateOf(RequestState.Idle as RequestState<ApiResponse>)
-    val apiResponse: State<RequestState<ApiResponse>> get() = _apiResponse
+    val apiResponse: State<RequestState<ApiResponse>> = _apiResponse
     private val _messageBarState = mutableStateOf(MessageBarState())
-    val messageBarState: State<MessageBarState> get() = _messageBarState
+    val messageBarState: State<MessageBarState> = _messageBarState
 
     init {
         getUserInfo()
@@ -44,19 +40,23 @@ class ProfileViewModel @Inject constructor(
         _apiResponse.value = RequestState.Loading
 
         viewModelScope.launch(Dispatchers.IO) {
-            verifyAndUpdate(repository.getUserInfo())
+            val response = repository.getUserInfo()
+
+            response.user?.let {
+                verifyAndUpdate(it)
+            } ?: updateUIState(response)
         }
     }
 
     fun updateFirstName(newName: String) {
         if (newName.length < MAX_LENGTH) {
-            _firstName.value = newName
+            _user.value = _user.value?.copy(firstName = newName)
         }
     }
 
-    fun updateLastName(lastName: String) {
-        if (lastName.length < MAX_LENGTH) {
-            _lastName.value = lastName
+    fun updateLastName(newName: String) {
+        if (newName.length < MAX_LENGTH) {
+            _user.value = _user.value?.copy(lastName = newName)
         }
     }
 
@@ -64,35 +64,29 @@ class ProfileViewModel @Inject constructor(
         _apiResponse.value = RequestState.Loading
 
         viewModelScope.launch(Dispatchers.IO) {
-            val response = repository.getUserInfo()
-
-            updateUIState(response)
+            updateUIState(repository.getUserInfo())
         }
     }
 
-    private fun verifyAndUpdate(currentUser: ApiResponse) {
-        val (verified, exception) = if (_firstName.value.isEmpty() || _lastName.value.isEmpty()) {
-            false to EmptyFieldException()
-        } else {
-            val firstName = currentUser.user?.firstName
-            val lastName = currentUser.user?.lastName
+    private suspend fun verifyAndUpdate(currentUser: User) {
+        val currentFirstName = _user.value?.firstName
+        val currentLastName = _user.value?.lastName
 
-            if (firstName == _firstName.value && lastName == _lastName.value) {
-                false to NothingToUpdateException()
-            } else {
-                true to null
+        when {
+            currentFirstName.isNullOrEmpty() || currentLastName.isNullOrEmpty() -> {
+                updateUIState(ApiResponse(error = EmptyFieldException()))
             }
-        }
 
-        if (verified) {
-            viewModelScope.launch(Dispatchers.IO) {
-                val response = repository.updateUser(UserUpdate(_firstName.value, _lastName.value))
+            currentUser.firstName == currentFirstName && currentUser.lastName == currentLastName -> {
+                updateUIState(ApiResponse(error = NothingToUpdateException()))
+            }
+
+            else -> {
+                val userUpdate = UserUpdate(currentFirstName, currentLastName)
+                val response = repository.updateUser(userUpdate)
 
                 updateUIState(response)
             }
-        } else {
-            _apiResponse.value = RequestState.Success(ApiResponse(error = exception))
-            _messageBarState.value = MessageBarState(error = exception)
         }
     }
 
@@ -107,13 +101,9 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 success && user != null -> {
-                    val firstName = user.firstName
-                    val lastName = user.lastName
                     _apiResponse.value = RequestState.Success(response)
                     _messageBarState.value = MessageBarState(message = message)
                     _user.value = user
-                    _firstName.value = firstName
-                    _lastName.value = lastName
                 }
 
                 else -> {

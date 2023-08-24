@@ -24,6 +24,7 @@ import sky.tavrov.suaclient.component.GoogleButton
 import sky.tavrov.suaclient.component.MessageBar
 import sky.tavrov.suaclient.domain.model.ApiResponse
 import sky.tavrov.suaclient.domain.model.MessageBarState
+import sky.tavrov.suaclient.domain.model.User
 import sky.tavrov.suaclient.ui.theme.LoadingBlue
 import sky.tavrov.suaclient.util.RequestState
 
@@ -31,12 +32,9 @@ import sky.tavrov.suaclient.util.RequestState
 fun ProfileContent(
     apiResponse: RequestState<ApiResponse>,
     messageBarState: MessageBarState,
-    firstName: String,
+    user: User?,
     onFirstNameChanged: (String) -> Unit,
-    lastName: String,
     onLastNameChanged: (String) -> Unit,
-    email: String?,
-    picture: String?,
     onSignOutClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -66,15 +64,17 @@ fun ProfileContent(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CentralContent(
-                firstName = firstName,
-                onFirstNameChanged = onFirstNameChanged,
-                lastName = lastName,
-                onLastNameChanged = onLastNameChanged,
-                email = email,
-                picture = picture,
-                onSignOutClicked = onSignOutClicked
-            )
+            user?.let {
+                CentralContent(
+                    firstName = user.firstName,
+                    onFirstNameChanged = onFirstNameChanged,
+                    lastName = user.lastName,
+                    onLastNameChanged = onLastNameChanged,
+                    email = user.email,
+                    picture = user.picture,
+                    onSignOutClicked = onSignOutClicked
+                )
+            }
         }
     }
 }

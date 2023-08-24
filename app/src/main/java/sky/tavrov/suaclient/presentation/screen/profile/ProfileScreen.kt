@@ -17,8 +17,6 @@ fun ProfileScreen(
     val messageBarState by profileViewModel.messageBarState
 
     val user by profileViewModel.user
-    val firstName by profileViewModel.firstName
-    val lastName by profileViewModel.lastName
 
     Scaffold(
         topBar = {
@@ -31,12 +29,9 @@ fun ProfileScreen(
             ProfileContent(
                 apiResponse = apiResponse,
                 messageBarState = messageBarState,
-                firstName = firstName,
+                user = user,
                 onFirstNameChanged = profileViewModel::updateFirstName,
-                lastName = lastName,
                 onLastNameChanged = profileViewModel::updateLastName,
-                email = user?.email,
-                picture = user?.picture,
                 onSignOutClicked = {}
             )
         }
