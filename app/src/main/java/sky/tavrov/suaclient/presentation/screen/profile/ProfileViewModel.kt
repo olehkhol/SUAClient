@@ -37,6 +37,16 @@ class ProfileViewModel @Inject constructor(
         getUserInfo()
     }
 
+    fun deleteUser() {
+        _apiResponse.value = RequestState.Loading
+        _clearSessionResponse.value = RequestState.Loading
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = repository.deleteUser()
+
+            updateUIState(response)
+        }
+    }
+
     fun clearSession() {
         _apiResponse.value = RequestState.Loading
         _clearSessionResponse.value = RequestState.Loading
