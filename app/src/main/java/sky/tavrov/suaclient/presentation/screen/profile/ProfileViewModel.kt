@@ -27,11 +27,24 @@ class ProfileViewModel @Inject constructor(
     val user: State<User?> = _user
     private val _apiResponse = mutableStateOf(RequestState.Idle as RequestState<ApiResponse>)
     val apiResponse: State<RequestState<ApiResponse>> = _apiResponse
+    private val _clearSessionResponse =
+        mutableStateOf(RequestState.Idle as RequestState<ApiResponse>)
+    val clearSessionResponse: State<RequestState<ApiResponse>> = _clearSessionResponse
     private val _messageBarState = mutableStateOf(MessageBarState())
     val messageBarState: State<MessageBarState> = _messageBarState
 
     init {
         getUserInfo()
+    }
+
+    fun clearSession() {
+        _apiResponse.value = RequestState.Loading
+        _clearSessionResponse.value = RequestState.Loading
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = repository.clearSession()
+
+            updateUIState(response)
+        }
     }
 
     fun updateUserInfo() {
@@ -57,6 +70,12 @@ class ProfileViewModel @Inject constructor(
     fun updateLastName(newName: String) {
         if (newName.length < MAX_LENGTH) {
             _user.value = _user.value?.copy(lastName = newName)
+        }
+    }
+
+    fun saveSignedInState(signedIn: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.saveSignedInState(signedIn)
         }
     }
 
@@ -97,17 +116,21 @@ class ProfileViewModel @Inject constructor(
             when {
                 !success && error != null -> {
                     _apiResponse.value = RequestState.Error(error)
+                    _clearSessionResponse.value = RequestState.Error(error)
                     _messageBarState.value = MessageBarState(error = error)
                 }
 
                 success && user != null -> {
                     _apiResponse.value = RequestState.Success(response)
+                    _clearSessionResponse.value = RequestState.Success(response)
                     _messageBarState.value = MessageBarState(message = message)
                     _user.value = user
                 }
 
                 else -> {
                     _apiResponse.value = RequestState.Idle
+                    _clearSessionResponse.value = RequestState.Idle
+                    _messageBarState.value = MessageBarState()
                 }
             }
         }
