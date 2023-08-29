@@ -1,16 +1,23 @@
 package sky.tavrov.suaclient.presentation.screen.profile
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.android.gms.auth.api.identity.Identity
+import retrofit2.HttpException
+import sky.tavrov.suaclient.domain.model.ApiRequest
 import sky.tavrov.suaclient.domain.model.ApiResponse
 import sky.tavrov.suaclient.navigation.Screen
+import sky.tavrov.suaclient.presentation.screen.common.StartActivityForResult
+import sky.tavrov.suaclient.presentation.screen.common.signIn
 import sky.tavrov.suaclient.util.RequestState
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -39,10 +46,40 @@ fun ProfileScreen(
                 user = user,
                 onFirstNameChanged = profileViewModel::updateFirstName,
                 onLastNameChanged = profileViewModel::updateLastName,
-                onSignOutClicked = profileViewModel::clearSession
+                onSignOutClicked = profileViewModel::clearSession,
+                modifier = Modifier.padding(it)
             )
         }
     )
+
+    val activity = LocalContext.current as Activity
+
+    StartActivityForResult(
+        key = apiResponse,
+        onResultReceive = {
+            profileViewModel.verifyTokenOnBackend(request = ApiRequest(it))
+        },
+        onDialogDismissed = {
+            signOut(profileViewModel, navController)
+        }
+    ) { activityLauncher ->
+        if (apiResponse is RequestState.Success) {
+            val response = (apiResponse as RequestState.Success).data
+            if (response.error is HttpException && response.error.code() == 401) {
+                signIn(
+                    activity = activity,
+                    accountNotFound = {
+                        signOut(profileViewModel, navController)
+                    },
+                    launchActivityResult = {
+                        activityLauncher.launch(it)
+                    }
+                )
+            }
+        } else if (apiResponse is RequestState.Error) {
+            signOut(profileViewModel, navController)
+        }
+    }
 
     LaunchedEffect(key1 = clearSessionResponse) {
         if (clearSessionResponse is RequestState.Success &&
@@ -50,10 +87,17 @@ fun ProfileScreen(
         ) {
             val oneTapClient = Identity.getSignInClient(context)
             oneTapClient.signOut()
-            profileViewModel.saveSignedInState(false)
-            navigateToLoginScreen(navController = navController)
+            signOut(profileViewModel, navController)
         }
     }
+}
+
+private fun signOut(
+    profileViewModel: ProfileViewModel,
+    navController: NavController
+) {
+    profileViewModel.saveSignedInState(signedIn = false)
+    navigateToLoginScreen(navController = navController)
 }
 
 fun navigateToLoginScreen(

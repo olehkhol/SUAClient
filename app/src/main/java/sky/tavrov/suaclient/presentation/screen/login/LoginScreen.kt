@@ -34,7 +34,7 @@ fun LoginScreen(
             LoginContent(
                 signedInState = singedInState,
                 messageBarState = messageBarState,
-                modifier = Modifier.padding(it),
+                modifier = Modifier.padding(it)
             ) {
                 loginViewModel.saveSignedInState(signedIn = true)
             }
@@ -78,7 +78,9 @@ fun LoginScreen(
                 }
             }
 
-            is RequestState.Error -> loginViewModel.saveSignedInState(false)
+            is RequestState.Error -> {
+                loginViewModel.saveSignedInState(false)
+            }
             else -> {}
         }
     }

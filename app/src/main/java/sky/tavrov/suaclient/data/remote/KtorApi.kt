@@ -24,7 +24,7 @@ interface KtorApi {
         @Body userUpdate: UserUpdate
     ): ApiResponse
 
-    @DELETE("/delete")
+    @DELETE("/delete_user")
     suspend fun deleteUser(): ApiResponse
 
     @GET("/sign_out")

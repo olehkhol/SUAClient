@@ -1,5 +1,6 @@
 package sky.tavrov.suaclient.presentation.screen.profile
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import sky.tavrov.suaclient.domain.model.ApiRequest
 import sky.tavrov.suaclient.domain.model.ApiResponse
 import sky.tavrov.suaclient.domain.model.MessageBarState
 import sky.tavrov.suaclient.domain.model.User
@@ -44,6 +46,7 @@ class ProfileViewModel @Inject constructor(
             val response = repository.deleteUser()
 
             updateUIState(response)
+            updateSessionState(response)
         }
     }
 
@@ -54,6 +57,7 @@ class ProfileViewModel @Inject constructor(
             val response = repository.clearSession()
 
             updateUIState(response)
+            updateSessionState(response)
         }
     }
 
@@ -86,6 +90,28 @@ class ProfileViewModel @Inject constructor(
     fun saveSignedInState(signedIn: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.saveSignedInState(signedIn)
+        }
+    }
+
+    fun verifyTokenOnBackend(request: ApiRequest) {
+        _apiResponse.value = RequestState.Loading
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val response: ApiResponse = repository.verifyTokenOnBackend(request)
+
+            withContext(Dispatchers.Main) {
+                if (response.error != null) {
+                    _apiResponse.value = RequestState.Error(response.error)
+                    _messageBarState.value = MessageBarState(error = response.error)
+
+                    Log.d("LoginViewModel", response.error.message.toString())
+                } else {
+                    _apiResponse.value = RequestState.Success(response)
+                    _messageBarState.value = MessageBarState(message = response.message)
+
+                    Log.d("LoginViewModel", response.message.toString())
+                }
+            }
         }
     }
 
@@ -126,21 +152,38 @@ class ProfileViewModel @Inject constructor(
             when {
                 !success && error != null -> {
                     _apiResponse.value = RequestState.Error(error)
-                    _clearSessionResponse.value = RequestState.Error(error)
                     _messageBarState.value = MessageBarState(error = error)
                 }
 
                 success && user != null -> {
                     _apiResponse.value = RequestState.Success(response)
-                    _clearSessionResponse.value = RequestState.Success(response)
                     _messageBarState.value = MessageBarState(message = message)
                     _user.value = user
                 }
 
                 else -> {
                     _apiResponse.value = RequestState.Idle
-                    _clearSessionResponse.value = RequestState.Idle
                     _messageBarState.value = MessageBarState()
+                }
+            }
+        }
+    }
+
+    private suspend fun updateSessionState(response: ApiResponse) {
+        val (success, user, message, error) = response
+
+        withContext(Dispatchers.Main) {
+            when {
+                !success && error != null -> {
+                    _clearSessionResponse.value = RequestState.Error(error)
+                }
+
+                success && error == null -> {
+                    _clearSessionResponse.value = RequestState.Success(response)
+                }
+
+                else -> {
+                    _clearSessionResponse.value = RequestState.Idle
                 }
             }
         }
